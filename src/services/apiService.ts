@@ -6,6 +6,7 @@ import type {
   ActivityType,
   ApiResponse,
 } from '@/types';
+import { UserStorageService } from './userStorageService';
 
 export class ApiService {
   private static readonly API_DELAY = 500;
@@ -17,12 +18,7 @@ export class ApiService {
   static async getUsers(): Promise<ApiResponse<User[]>> {
     await ApiService.delay();
     try {
-      const usersData = await import('@/data/users.json');
-      const users: User[] = usersData.default.map((user: unknown) => ({
-        ...(user as User),
-        createdAt: new Date((user as User).createdAt),
-        updatedAt: new Date((user as User).updatedAt),
-      }));
+      const users = UserStorageService.getAllUsers();
 
       return {
         success: true,
@@ -183,10 +179,7 @@ export class ApiService {
     }
   }
 
-  static async authenticateUser(
-    email: string,
-    mobileNumber: string
-  ): Promise<ApiResponse<User>> {
+  static async authenticateUser(username: string): Promise<ApiResponse<User>> {
     await ApiService.delay();
     try {
       const usersResponse = await ApiService.getUsers();
@@ -198,7 +191,7 @@ export class ApiService {
       }
 
       const user = usersResponse.data.find(
-        (u) => u.email === email || u.mobileNumber === mobileNumber
+        (u) => u.email === username || u.mobileNumber === username
       );
 
       if (!user) {

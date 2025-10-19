@@ -3,7 +3,6 @@ import { FilterOperator, OrderStatus, SortOrder } from '@/types';
 import type {
   BaseEntity,
   User,
-  UserRegistrationData,
   Order,
   LoginRecord,
   ActivityType,
@@ -12,25 +11,25 @@ import type {
   PaginatedResponse,
   PaginationMeta,
 } from '@/types';
+import { UserRegistrationFormData } from '@/schemas/validation';
 
-export abstract class BaseEntityClass implements BaseEntity {
-  public readonly id: string;
-  public readonly createdAt: Date;
-  public readonly updatedAt: Date;
+export abstract class BaseRecord<T extends BaseEntity> implements BaseEntity {
   [key: string]: unknown;
 
-  constructor() {
-    this.id = uuidv4();
-    this.createdAt = new Date();
-    this.updatedAt = new Date();
-  }
+  constructor(
+    public readonly id: string = uuidv4(),
+    public readonly createdAt: Date = new Date(),
+    public updatedAt: Date = new Date()
+  ) {}
+
+  public abstract toJSON(): T;
 
   public updateTimestamp(): void {
-    (this as { updatedAt: Date }).updatedAt = new Date();
+    this.updatedAt = new Date();
   }
 }
 
-export class UserClass extends BaseEntityClass implements User {
+export class UserRecord extends BaseRecord<User> implements User {
   public readonly firstName: string;
   public readonly lastName: string;
   public readonly email: string;
@@ -38,7 +37,7 @@ export class UserClass extends BaseEntityClass implements User {
   public readonly address: string;
   [key: string]: unknown;
 
-  constructor(data: UserRegistrationData) {
+  constructor(data: UserRegistrationFormData) {
     super();
     this.firstName = data.firstName;
     this.lastName = data.lastName;
@@ -66,7 +65,7 @@ export class UserClass extends BaseEntityClass implements User {
   }
 }
 
-export class OrderClass extends BaseEntityClass implements Order {
+export class OrderRecord extends BaseRecord<Order> implements Order {
   public readonly orderNumber: string;
   public readonly buyerName: string;
   public readonly status: OrderStatus;
@@ -101,26 +100,23 @@ export class OrderClass extends BaseEntityClass implements Order {
   }
 }
 
-export class LoginRecordClass extends BaseEntityClass implements LoginRecord {
-  public readonly userId: string;
-  public readonly activityType: ActivityType;
+export class SessionRecord
+  extends BaseRecord<LoginRecord>
+  implements LoginRecord
+{
   public readonly timestamp: Date;
-  public readonly ipAddress?: string | undefined;
-  public readonly userAgent?: string | undefined;
-  [key: string]: unknown;
+
+  // [key: string]: unknown;
 
   constructor(
-    userId: string,
-    activityType: ActivityType,
-    ipAddress?: string | undefined,
-    userAgent?: string | undefined
+    public readonly userId: string,
+    public readonly activityType: ActivityType,
+    public readonly ipAddress?: string,
+    public readonly userAgent?: string
   ) {
     super();
-    this.userId = userId;
-    this.activityType = activityType;
+
     this.timestamp = new Date();
-    this.ipAddress = ipAddress;
-    this.userAgent = userAgent;
   }
 
   public toJSON(): LoginRecord {

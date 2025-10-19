@@ -16,11 +16,12 @@ import {
   userRegistrationSchema,
   type UserRegistrationFormData,
 } from '@/schemas/validation';
-import { UserClass } from '@/utils/classes';
+import { UserRecord } from '@/utils/classes';
+import { UserStorageService } from '@/services/userStorageService';
 import type { ApiResponse } from '@/types';
 
 interface RegistrationFormProps {
-  onRegistrationSuccess?: (user: UserClass) => void;
+  onRegistrationSuccess?: (user: UserRecord) => void;
   onNavigateToLogin?: () => void;
 }
 
@@ -50,9 +51,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const newUser = new UserClass(data);
+      const newUser = new UserRecord(data);
 
-      const response: ApiResponse<UserClass> = await registerUser(newUser);
+      const response: ApiResponse<UserRecord> = await registerUser(newUser);
 
       if (response.success && response.data) {
         setSubmitSuccess(true);
@@ -70,19 +71,27 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   };
 
   const registerUser = async (
-    user: UserClass
-  ): Promise<ApiResponse<UserClass>> => {
-    const existingUsers = await import('@/data/users.json');
-    const userExists = existingUsers.default.some(
-      (existingUser) =>
-        existingUser.email === user.email ||
-        existingUser.mobileNumber === user.mobileNumber
+    user: UserRecord
+  ): Promise<ApiResponse<UserRecord>> => {
+    const userExists = UserStorageService.userExists(
+      user.email,
+      user.mobileNumber
     );
 
     if (userExists) {
       return {
         success: false,
         error: 'User with this email or mobile number already exists',
+      };
+    }
+
+    const userJSON = user.toJSON();
+    const saved = UserStorageService.addUser(userJSON);
+
+    if (!saved) {
+      return {
+        success: false,
+        error: 'Failed to register user',
       };
     }
 
