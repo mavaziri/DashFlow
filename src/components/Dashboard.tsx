@@ -40,7 +40,7 @@ interface DashboardProps {
   onLogout?: () => void;
 }
 
-interface OrderSearchState {
+interface OrderSearchData {
   orders: Order[];
   loading: boolean;
   error: string | null;
@@ -48,15 +48,19 @@ interface OrderSearchState {
   currentPage: number;
 }
 
+const defaultOrderSearchData: OrderSearchData = {
+  orders: [],
+  loading: true,
+  error: null,
+  totalCount: 0,
+  currentPage: 1,
+};
+
 export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   const [recentLogins, setRecentLogins] = useState<LoginRecord[]>([]);
-  const [orderState, setOrderState] = useState<OrderSearchState>({
-    orders: [],
-    loading: true,
-    error: null,
-    totalCount: 0,
-    currentPage: 1,
-  });
+  const [orderState, setOrderState] = useState<OrderSearchData>(
+    defaultOrderSearchData
+  );
 
   const orderService = useMemo(() => new DataService<Order>(), []);
 

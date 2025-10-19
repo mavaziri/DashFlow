@@ -13,7 +13,7 @@ import {
   Col,
 } from 'react-bootstrap';
 import { loginSchema, type LoginFormData } from '@/schemas/validation';
-import { LoginRecordClass } from '@/utils/classes';
+import { SessionRecord } from '@/utils/classes';
 import { ApiService } from '@/services/apiService';
 import { ActivityType, ApiResponse, AuthUser } from '@/types';
 
@@ -53,6 +53,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         await createLoginRecord(response.data.id, ActivityType.LOGIN);
 
         reset();
+
         onLoginSuccess?.(response.data);
       } else {
         setSubmitError(response.error || 'Login failed');
@@ -70,10 +71,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     credentials: LoginFormData
   ): Promise<ApiResponse<AuthUser>> => {
     try {
-      const response = await ApiService.authenticateUser(
-        credentials.username,
-        credentials.username
-      );
+      const response = await ApiService.authenticateUser(credentials.username);
 
       if (response.success && response.data) {
         const authUser: AuthUser = {
@@ -105,7 +103,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     activityType: ActivityType
   ): Promise<void> => {
     try {
-      const loginRecord = new LoginRecordClass(
+      const loginRecord = new SessionRecord(
         userId,
         activityType,
         '192.168.1.1',
