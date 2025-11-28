@@ -1,7 +1,7 @@
 import type { User } from '@/types';
 import usersData from '@/data/users.json';
 
-const STORAGE_KEY = 'tokeniko_registered_users';
+const STORAGE_KEY = 'dashflow_registered_users';
 
 export class UserStorageService {
   private static loadUsersFromStorage(): User[] {
@@ -14,19 +14,31 @@ export class UserStorageService {
       if (!stored) {
         return [];
       }
-      const parsed = JSON.parse(stored) as unknown[];
-      return parsed.map((item) => {
-        const user = item as Record<string, unknown>;
+
+      const parsed: User[] = JSON.parse(stored);
+      return parsed.map((user) => {
+        const {
+          id,
+          createdAt,
+          updatedAt,
+          firstName,
+          lastName,
+          email,
+          mobileNumber,
+          address,
+          fullName,
+        } = user;
+
         return {
-          id: user.id as string,
-          createdAt: new Date(user.createdAt as string),
-          updatedAt: new Date(user.updatedAt as string),
-          firstName: user.firstName as string,
-          lastName: user.lastName as string,
-          email: user.email as string,
-          mobileNumber: user.mobileNumber as string,
-          address: user.address as string,
-          fullName: user.fullName as string,
+          id: id,
+          createdAt: new Date(createdAt),
+          updatedAt: new Date(updatedAt),
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          mobileNumber: mobileNumber,
+          address: address,
+          fullName: fullName,
         };
       });
     } catch (error) {

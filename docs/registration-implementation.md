@@ -74,7 +74,7 @@ Implemented a `UserStorageService` that uses browser localStorage to persist new
 
 ## Storage Location
 
-New users are stored in: `localStorage['tokeniko_registered_users']`
+New users are stored in: `localStorage['dashflow_registered_users']`
 
 Format: JSON array of User objects
 

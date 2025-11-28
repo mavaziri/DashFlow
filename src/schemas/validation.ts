@@ -15,6 +15,15 @@ export const userRegistrationSchema = z.object({
 
   email: z.string().email('Please enter a valid email address').toLowerCase(),
 
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(100, 'Password must not exceed 100 characters')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+      'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+    ),
+
   mobileNumber: z
     .string()
     .regex(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid mobile number')

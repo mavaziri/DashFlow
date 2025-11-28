@@ -40,24 +40,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initializeAuth = (): void => {
       try {
-        const storedUser = localStorage.getItem('tokeniko_user');
-        console.log('storedUser', storedUser);
+        const storedUser = localStorage.getItem('dashflow_user');
 
         if (storedUser) {
-          const parsed = JSON.parse(storedUser);
-          console.log('parsed', parsed);
+          const parsedUser = JSON.parse(storedUser);
 
-          const result = AuthUserSchema.safeParse(parsed);
+          const result = AuthUserSchema.safeParse(parsedUser);
           if (result.success) {
-            setUser(parsed);
+            setUser(parsedUser);
           } else {
-            localStorage.removeItem('tokeniko_user');
+            localStorage.removeItem('dashflow_user');
           }
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
 
-        localStorage.removeItem('tokeniko_user');
+        localStorage.removeItem('dashflow_user');
       } finally {
         setIsLoading(false);
       }
@@ -69,13 +67,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = useCallback((authUser: AuthUser): void => {
     setUser(authUser);
 
-    localStorage.setItem('tokeniko_user', JSON.stringify(authUser));
+    localStorage.setItem('dashflow_user', JSON.stringify(authUser));
   }, []);
 
   const logout = useCallback((): void => {
     setUser(null);
 
-    localStorage.removeItem('tokeniko_user');
+    localStorage.removeItem('dashflow_user');
   }, []);
 
   const value: AuthContextType = useMemo(
