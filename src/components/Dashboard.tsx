@@ -86,10 +86,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
         createdAt: new Date(order.createdAt),
         updatedAt: new Date(order.updatedAt),
         orderDate: new Date(order.orderDate),
-        status: order.status as OrderStatus,
+        status: OrderStatus[order.status as keyof typeof OrderStatus],
       }));
 
       orderService.clear();
+
       orders.forEach((order) => orderService.add(order));
 
       const loginData = await import('@/data/loginRecords.json');
@@ -99,7 +100,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
           createdAt: new Date(record.createdAt),
           updatedAt: new Date(record.updatedAt),
           timestamp: new Date(record.timestamp),
-          activityType: record.activityType as ActivityType,
+          activityType:
+            ActivityType[record.activityType as keyof typeof ActivityType],
         }))
         .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
         .slice(0, 5);
@@ -184,6 +186,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
 
   const handleClearFilters = (): void => {
     reset();
+
     searchOrders({});
   };
 
@@ -224,7 +227,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
     <>
       <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
         <Container>
-          <Navbar.Brand href="#home">Tokeniko Dashboard</Navbar.Brand>
+          <Navbar.Brand href="#home">DashFlow Dashboard</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">

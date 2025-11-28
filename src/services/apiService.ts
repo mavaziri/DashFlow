@@ -1,11 +1,6 @@
-import type {
-  User,
-  Order,
-  LoginRecord,
-  OrderStatus,
-  ActivityType,
-  ApiResponse,
-} from '@/types';
+import type { User, Order, LoginRecord, ApiResponse } from '@/types';
+
+import { OrderStatus, ActivityType } from '@/types';
 import { UserStorageService } from './userStorageService';
 
 export class ApiService {
@@ -17,6 +12,7 @@ export class ApiService {
 
   static async getUsers(): Promise<ApiResponse<User[]>> {
     await ApiService.delay();
+
     try {
       const users = UserStorageService.getAllUsers();
 
@@ -35,6 +31,7 @@ export class ApiService {
 
   static async getUserById(id: string): Promise<ApiResponse<User>> {
     await ApiService.delay();
+
     try {
       const usersResponse = await ApiService.getUsers();
       if (!usersResponse.success || !usersResponse.data) {
@@ -67,14 +64,15 @@ export class ApiService {
 
   static async getOrders(): Promise<ApiResponse<Order[]>> {
     await ApiService.delay();
+
     try {
       const ordersData = await import('@/data/orders.json');
-      const orders: Order[] = ordersData.default.map((order: unknown) => ({
-        ...(order as Order),
-        createdAt: new Date((order as Order).createdAt),
-        updatedAt: new Date((order as Order).updatedAt),
-        orderDate: new Date((order as Order).orderDate),
-        status: (order as Order).status as OrderStatus,
+      const orders: Order[] = ordersData.default.map((order) => ({
+        ...order,
+        createdAt: new Date(order.createdAt),
+        updatedAt: new Date(order.updatedAt),
+        orderDate: new Date(order.orderDate),
+        status: OrderStatus[order.status as keyof typeof OrderStatus],
       }));
 
       return {
@@ -92,6 +90,7 @@ export class ApiService {
 
   static async getOrderById(id: string): Promise<ApiResponse<Order>> {
     await ApiService.delay();
+
     try {
       const ordersResponse = await ApiService.getOrders();
       if (!ordersResponse.success || !ordersResponse.data) {
@@ -124,17 +123,17 @@ export class ApiService {
 
   static async getLoginRecords(): Promise<ApiResponse<LoginRecord[]>> {
     await ApiService.delay();
+
     try {
       const loginData = await import('@/data/loginRecords.json');
-      const loginRecords: LoginRecord[] = loginData.default.map(
-        (record: unknown) => ({
-          ...(record as LoginRecord),
-          createdAt: new Date((record as LoginRecord).createdAt),
-          updatedAt: new Date((record as LoginRecord).updatedAt),
-          timestamp: new Date((record as LoginRecord).timestamp),
-          activityType: (record as LoginRecord).activityType as ActivityType,
-        })
-      );
+      const loginRecords: LoginRecord[] = loginData.default.map((record) => ({
+        ...record,
+        createdAt: new Date(record.createdAt),
+        updatedAt: new Date(record.updatedAt),
+        timestamp: new Date(record.timestamp),
+        activityType:
+          ActivityType[record.activityType as keyof typeof ActivityType],
+      }));
 
       return {
         success: true,
@@ -153,6 +152,7 @@ export class ApiService {
     limit: number = 10
   ): Promise<ApiResponse<LoginRecord[]>> {
     await ApiService.delay();
+
     try {
       const recordsResponse = await ApiService.getLoginRecords();
       if (!recordsResponse.success || !recordsResponse.data) {
@@ -181,6 +181,7 @@ export class ApiService {
 
   static async authenticateUser(username: string): Promise<ApiResponse<User>> {
     await ApiService.delay();
+
     try {
       const usersResponse = await ApiService.getUsers();
       if (!usersResponse.success || !usersResponse.data) {
@@ -219,6 +220,7 @@ export class ApiService {
     mobileNumber: string
   ): Promise<ApiResponse<boolean>> {
     await ApiService.delay();
+
     try {
       const usersResponse = await ApiService.getUsers();
       if (!usersResponse.success || !usersResponse.data) {

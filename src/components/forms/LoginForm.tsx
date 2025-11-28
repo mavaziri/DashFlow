@@ -13,9 +13,9 @@ import {
   Col,
 } from 'react-bootstrap';
 import { loginSchema, type LoginFormData } from '@/schemas/validation';
-import { SessionRecord } from '@/utils/classes';
-import { ApiService } from '@/services/apiService';
-import { ActivityType, ApiResponse, AuthUser } from '@/types';
+import { authenticateUser } from '@/actions/user.actions';
+import { createLoginRecord } from '@/actions/loginRecord.actions';
+import { ActivityType, type AuthUser } from '@/types';
 
 interface LoginFormProps {
   onLoginSuccess?: (user: AuthUser) => void;
@@ -45,12 +45,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     setSubmitError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const response: ApiResponse<AuthUser> = await authenticateUser(data);
+      const response = await authenticateUser(data.username, data.password);
 
       if (response.success && response.data) {
-        await createLoginRecord(response.data.id, ActivityType.LOGIN);
+        const userAgent =
+          typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
+
+        await createLoginRecord({
+          userId: response.data.id,
+          activityType: ActivityType.LOGIN,
+          ipAddress: '192.168.1.1',
+          ...(userAgent && { userAgent }),
+        });
 
         reset();
 
@@ -64,55 +70,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       console.error('Login error:', error);
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const authenticateUser = async (
-    credentials: LoginFormData
-  ): Promise<ApiResponse<AuthUser>> => {
-    try {
-      const response = await ApiService.authenticateUser(credentials.username);
-
-      if (response.success && response.data) {
-        const authUser: AuthUser = {
-          id: response.data.id,
-          email: response.data.email,
-          fullName: response.data.fullName,
-          mobileNumber: response.data.mobileNumber,
-        };
-
-        return {
-          success: true,
-          data: authUser,
-          message: 'Login successful',
-        };
-      }
-
-      return response;
-    } catch (error) {
-      console.error('Authentication error details:', error);
-      return {
-        success: false,
-        error: 'Authentication service unavailable',
-      };
-    }
-  };
-
-  const createLoginRecord = async (
-    userId: string,
-    activityType: ActivityType
-  ): Promise<void> => {
-    try {
-      const loginRecord = new SessionRecord(
-        userId,
-        activityType,
-        '192.168.1.1',
-        navigator.userAgent
-      );
-
-      console.log('Login record created:', loginRecord.toJSON());
-    } catch (error) {
-      console.error('Failed to create login record:', error);
     }
   };
 

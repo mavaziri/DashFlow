@@ -16,12 +16,11 @@ import {
   userRegistrationSchema,
   type UserRegistrationFormData,
 } from '@/schemas/validation';
-import { UserRecord } from '@/utils/classes';
-import { UserStorageService } from '@/services/userStorageService';
-import type { ApiResponse } from '@/types';
+import { createUser } from '@/actions/user.actions';
+import type { User } from '@/types';
 
 interface RegistrationFormProps {
-  onRegistrationSuccess?: (user: UserRecord) => void;
+  onRegistrationSuccess?: (user: User) => void;
   onNavigateToLogin?: () => void;
 }
 
@@ -45,19 +44,26 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
   const onSubmit = async (data: UserRegistrationFormData): Promise<void> => {
     setIsSubmitting(true);
+
     setSubmitError(null);
+
     setSubmitSuccess(false);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const newUser = new UserRecord(data);
-
-      const response: ApiResponse<UserRecord> = await registerUser(newUser);
+      const response = await createUser({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
+        mobileNumber: data.mobileNumber,
+        address: data.address,
+      });
 
       if (response.success && response.data) {
         setSubmitSuccess(true);
+
         reset();
+
         onRegistrationSuccess?.(response.data);
       } else {
         setSubmitError(response.error || 'Registration failed');
@@ -68,38 +74,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const registerUser = async (
-    user: UserRecord
-  ): Promise<ApiResponse<UserRecord>> => {
-    const userExists = UserStorageService.userExists(
-      user.email,
-      user.mobileNumber
-    );
-
-    if (userExists) {
-      return {
-        success: false,
-        error: 'User with this email or mobile number already exists',
-      };
-    }
-
-    const userJSON = user.toJSON();
-    const saved = UserStorageService.addUser(userJSON);
-
-    if (!saved) {
-      return {
-        success: false,
-        error: 'Failed to register user',
-      };
-    }
-
-    return {
-      success: true,
-      data: user,
-      message: 'Registration successful',
-    };
   };
 
   return (
@@ -189,6 +163,26 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   <Form.Control.Feedback type="invalid">
                     {errors.email?.message}
                   </Form.Control.Feedback>
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>
+                    Password <span className="text-danger">*</span>
+                  </Form.Label>
+                  <Form.Control
+                    type="password"
+                    placeholder="Enter your password"
+                    {...register('password')}
+                    isInvalid={!!errors.password}
+                    disabled={isSubmitting}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.password?.message}
+                  </Form.Control.Feedback>
+                  <Form.Text className="text-muted">
+                    Password must be at least 8 characters with uppercase,
+                    lowercase, and number.
+                  </Form.Text>
                 </Form.Group>
 
                 <Form.Group className="mb-3">

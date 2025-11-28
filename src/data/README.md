@@ -26,7 +26,7 @@ Contains mock login/logout activity records.
 When a new user registers:
 
 1. The system checks if the email or mobile number already exists (in both JSON files and localStorage)
-2. If validation passes, the new user is saved to browser localStorage under the key `tokeniko_registered_users`
+2. If validation passes, the new user is saved to browser localStorage under the key `dashflow_registered_users`
 3. The new user can immediately log in with their credentials
 4. New users persist across browser sessions (until localStorage is cleared)
 

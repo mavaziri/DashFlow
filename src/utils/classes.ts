@@ -39,6 +39,7 @@ export class UserRecord extends BaseRecord<User> implements User {
 
   constructor(data: UserRegistrationFormData) {
     super();
+
     this.firstName = data.firstName;
     this.lastName = data.lastName;
     this.email = data.email;
@@ -175,7 +176,7 @@ export class DataService<T extends BaseEntity> {
       filteredData.sort((a, b) => {
         const aValue = a[params.sortBy!];
         const bValue = b[params.sortBy!];
-
+        debugger;
         if (aValue < bValue)
           return params.sortOrder === SortOrder.DESC ? 1 : -1;
         if (aValue > bValue)

@@ -1,4 +1,4 @@
-# Tokeniko - User Management System
+# DashFlow - User Management System
 
 A comprehensive Next.js 15 TypeScript application with strict type safety, featuring user registration, authentication, and order management dashboard.
 
@@ -47,7 +47,7 @@ A comprehensive Next.js 15 TypeScript application with strict type safety, featu
 
 ```bash
 git clone <repository-url>
-cd tokeniko
+cd DashFlow
 ```
 
 2. Install dependencies:
